@@ -1,0 +1,79 @@
+    <span class="layui-breadcrumb">
+      <a href="{:url('Books/lists')}"><button style="float:right" class="layui-btn">返回</button></a>
+    </span>
+    <p style="color:red">{if condition="isset($error)"}{$error}{/if}</p>
+  <form class="layui-form" action="" method="post">
+
+	<!-- 汉字2位及以上，唯一 -->
+	  <div class="layui-form-item">
+    	<label class="layui-form-label">图书标题</label>
+    	<div class="layui-input-inline">
+      		<input type="text" name="b_title" autocomplete="off" placeholder="请输入图书标题" class="layui-input" value="">
+    	</div>
+  	</div>
+
+    <div class="layui-form-item">
+      <label class="layui-form-label">作者</label>
+      <div class="layui-input-inline">
+          <input type="text" name="b_name" autocomplete="off" placeholder="请输入作者" class="layui-input" value="">
+      </div>
+    </div>
+
+    <div class="layui-form-item">
+      <label class="layui-form-label">发布时间</label>
+      <div class="layui-input-inline">
+          <input type="text" name="open_time" autocomplete="off" placeholder="请输入时间" class="layui-input" value="">
+      </div>
+    </div>
+
+    <div class="layui-form-item layui-form-text">
+      <label class="layui-form-label">图书内容</label>
+      <div class="layui-input-block">
+        <textarea name="b_content" placeholder="请输入内容" class="layui-textarea"></textarea>
+      </div>
+    </div>
+ 
+  	<div class="layui-form-item">
+    	<div class="layui-input-block">
+      		<input type="button" class="layui-btn" lay-submit lay-filter="*" value="发布">
+      		<button type="reset" class="layui-btn layui-btn-primary">重置</button>
+    	</div>
+  	</div>
+</form>
+
+<script>
+  $(function(){
+    layui.use(['form','layer'], function(){
+      var form=layui.form
+      ,layer=layui.layer;
+
+      //提交
+      form.on('submit(*)', function(data){
+        $.post(
+          "{:url('Books/doadd')}",
+          data.field,
+          function(res){
+            if(res.code==1){
+                layer.open({
+                    content: '添加成功'
+                    ,btn: ['再次添加', '跳转至列表']
+                    ,yes: function(index, layero){
+                        location.href="{:url('Books/add')}";
+                    }
+                    ,btn2: function(index, layero){
+                        location.href="{:url('Books/lists')}";
+                    }
+                });
+            }else{
+                layer.msg(res.font,{icon:res.code});
+            }
+          },
+          'json'
+        )
+        //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+        return false;
+      });
+
+    });
+  });
+</script>

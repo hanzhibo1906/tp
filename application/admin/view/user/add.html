@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>管理员管理</title> 
+    <script src="/static/js/jquery-3.3.1.min.js"></script>  
+</head>
+<body>	
+	<span class="layui-breadcrumb">
+	  <a href="{:url('User/index')}"><button style="float:right" class="layui-btn">返回</button></a>
+	</span>
+	<p style="color:red">{if condition="isset($error)"}{$error}{/if}</p>
+  <form class="layui-form" action="{:url('User/doadd')}" method="post">
+	  <div class="layui-form-item">
+		<label class="layui-form-label">管理员名称</label>
+		<div class="layui-input-inline">
+		  <input type="text" name="admin_name" value="{$data.admin_name?$data.admin_name:''}" autocomplete="off" placeholder="请输入管理员名称" class="layui-input">
+		</div>
+	  </div>
+
+	  <div class="layui-form-item">
+		  <label class="layui-form-label">验证邮箱</label>
+		  <div class="layui-input-inline">
+			<input type="text" name="email" value="{$data.email?$data.email:''}" autocomplete="off" placeholder="请输入邮箱" class="layui-input">
+		  </div>
+	  </div>
+
+	  <div class="layui-form-item">    
+		<label class="layui-form-label">密码</label>
+		<div class="layui-input-inline">
+		  <input type="password" name="pwd" value="{$data.pwd?$data.pwd:''}" autocomplete="off" placeholder="请输入密码" class="layui-input">
+		</div>
+	  </div>
+	  <div class="layui-form-item">
+		<label class="layui-form-label">确认密码</label>
+		<div class="layui-input-inline">
+		  <input type="password" name="qpwd" value="{$data.repwd?$data.qpwd:''}" autocomplete="off" placeholder="请输入确认密码" class="layui-input">
+		</div>
+	  </div>
+
+	  <div class="layui-form-item">
+		<div class="layui-input-block">
+		  <input type="button" class="layui-btn submitbtn" lay-submit="" lay-filter="demo1" value="立即提交">
+		  <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+		</div>
+	  </div>
+  </form>
+	<script>
+        //点击事件
+        $('.submitbtn').click(function(){
+            var admin_name_flag=email_flag=pwd_flag=qpwd_flag=true;
+            //姓名
+            var admin_name=$('input[name="admin_name"]').val();
+            if(admin_name==''){
+                $('input[name="admin_name"]').next().remove();
+                $('input[name="admin_name"]').after('<span><b style="color:red">请输入管理员名称</b></span>');
+                admin_name_flag=false;
+            }
+            var length=admin_name.length;
+            if(length>30){
+                $('input[name="admin_name"]').next().remove();
+                $('input[name="admin_name"]').after('<span><b style="color:red">管理员名称长度不超过30个字符</b></span>');
+                admin_name_flag=false;
+            }
+            var reg=/^[\w\u4e00-\u9fa5-]{1,30}$/;
+            if(!reg.test(admin_name)){
+                $('input[name="admin_name"]').next().remove();
+                $('input[name="admin_name"]').after('<span><b style="color:red">管理员名称只能是汉字、字母、数字、下划线及破折号</b></span>');
+                admin_name_flag=false;
+            }
+            if(admin_name){
+                $.ajax({
+                    //设置为同步
+                    async:false,
+                    url:"{:url('User/checkOnlyName')}",
+                    type:"post",
+                    data:{admin_name:admin_name},
+                    success:function(data){
+                        if(data!=0){
+                            //alert(data);
+                            $('input[name="admin_name"]').next().remove();
+                            $('input[name="admin_name"]').after('<span><b style="color:red">管理员名称已存在</b></span>');
+                            admin_name_flag=false;
+                        }
+                    }   
+                });
+            }
+            //邮箱
+            var email=$('input[name="email"]').val();
+            if(email==''){
+                $('input[name="email"]').next().remove();
+                $('input[name="email"]').after('<span><b style="color:red">请输入邮箱</b></span>');
+                email_flag=false;
+            }
+            var yx=/^[1-9]\d{4,10}@qq.com$/;
+            if(!yx.test(email)){
+                $('input[name="email"]').next().remove();
+                $('input[name="email"]').after('<span><b style="color:red">请输入正确邮箱</b></span>');
+                email_flag=false;
+            }
+            //密码
+            var pwd=$('input[name="pwd"]').val();
+            if(pwd==''){
+                $('input[name="pwd"]').next().remove();
+                $('input[name="pwd"]').after('<span><b style="color:red">请输入密码</b></span>');
+                pwd_flag=false;
+            }
+            var length=pwd.length;
+            if(length<6||length>18){
+                $('input[name="pwd"]').next().remove();
+                $('input[name="pwd"]').after('<span><b style="color:red">密码长度为6——18个字符</b></span>');
+                pwd_flag=false;
+            }
+            //确认密码
+            var qpwd=$('input[name="qpwd"]').val();
+            if(qpwd==''){
+                $('input[name="qpwd"]').next().remove();
+                $('input[name="qpwd"]').after('<span><b style="color:red">请输入确认密码</b></span>');
+                qpwd_flag=false;
+            }
+            if(qpwd!==$('input[name="pwd"]').val()){
+                $('input[name="qpwd"]').next().remove();
+                $('input[name="qpwd"]').after('<span><b style="color:red">两次密码不一致</b></span>');
+                qpwd_flag=false;
+            }
+            //提交
+            if(admin_name_flag&&email_flag&&pwd_flag&&qpwd_flag){
+                $('.layui-form').submit();
+            }
+        });
+        //失去焦点事件
+        $('input[name="admin_name"]').blur(function(){
+            var admin_name=$(this).val();
+            if(admin_name==''){
+                $(this).next().remove();
+                $(this).after('<span><b style="color:red">请输入管理员名称</b></span>');
+                return;
+            }
+            var length=admin_name.length;
+            if(length>30){
+                $(this).next().remove();
+                $(this).after('<span><b style="color:red">管理员名称长度不超过30个字符</b></span>');
+                return;
+            }
+            var reg=/^[\w\u4e00-\u9fa5-]{1,30}$/;
+            if(!reg.test(admin_name)){
+                $(this).next().remove();
+                $(this).after('<span><b style="color:red">管理员名称只能是汉字、字母、数字、下划线及破折号</b></span>');
+                return;
+            }
+            $.post("{:url('User/checkOnlyName')}",{admin_name:admin_name},function(data){
+                if(data!=0){
+                        //alert(data);
+					$('input[name="admin_name"]').next().remove();
+					$('input[name="admin_name"]').after('<span><b style="color:red">管理员名称已存在</b></span>');
+					return;
+                }
+            });
+            $(this).next().remove();
+        });
+        $('input[name="email"]').blur(function(){
+            var email=$(this).val();
+            if(email==''){
+                $(this).next().remove();
+                $(this).after('<span><b style="color:red">请输入邮箱</b></span>');
+                return;
+            }
+            var yx=/^[1-9]\d{4,10}@qq.com$/;
+            if(!yx.test(email)){
+                $(this).next().remove();
+                $(this).after('<span><b style="color:red">请输入正确邮箱</b></span>');
+                return;
+            }
+            $(this).next().remove();
+        });
+        $('input[name="pwd"]').blur(function(){
+            var pwd=$(this).val();
+            if(pwd==''){
+                $(this).next().remove();
+                $(this).after('<span><b style="color:red">请输入密码</b></span>');
+                return;
+            }
+            var length=pwd.length;
+            if(length<6||length>18){
+                $(this).next().remove();
+                $(this).after('<span><b style="color:red">密码长度为6——18个字符</b></span>');
+                return;
+            }
+            $(this).next().remove();
+        });
+        $('input[name="qpwd"]').blur(function(){
+            var qpwd=$(this).val();
+            if(qpwd==''){
+                $(this).next().remove();
+                $(this).after('<span><b style="color:red">请输入确认密码</b></span>');
+                return;
+            }
+            if(qpwd!==$('input[name="pwd"]').val()){
+                $(this).next().remove();
+                $(this).after('<span><b style="color:red">两次密码不一致</b></span>');
+                return;
+            }
+            $(this).next().remove();
+        });
+    </script>
+</body>
+</html>

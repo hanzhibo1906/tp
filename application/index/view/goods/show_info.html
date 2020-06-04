@@ -1,0 +1,25 @@
+<!-- 商品数据 -->
+<ul class="cate_list">
+    {volist name='goodsInfo' id='v'}
+    	<li>
+        	<div class="img"><a href="{:url('Goods/goodsDetail')}?goods_id={$v.goods_id}"><img src="__UPLOADS__/{$v.goods_img}" width="210" height="185" /></a></div>
+            <div class="price">
+                <font>￥<span>{$v.shop_price}</span></font> &nbsp; 26R
+            </div>
+            <div class="name"><a href="{:url('Goods/goodsDetail')}?goods_id={$v.goods_id}">{$v.goods_name}</a></div>
+            <div class="carbg">
+                
+                <a class="ss" style="width: 75px">已收藏</a>
+               
+                <a class="ss" id="addCollect">收藏</a>
+                
+                <a class="j_car" style="width: 110px">加入购物车</a>
+            </div>
+        </li>
+    {/volist}
+    
+</ul>
+<!-- 分页 -->
+<div class="pages">
+	{$str|raw}
+</div>

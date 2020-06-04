@@ -1,0 +1,89 @@
+    <span class="layui-breadcrumb">
+      <a href="{:url('Addres/lists')}"><button style="float:right" class="layui-btn">返回</button></a>
+    </span>
+    <p style="color:red">{if condition="isset($error)"}{$error}{/if}</p>
+  <form class="layui-form" action="" method="post">
+
+	<!-- 汉字2位及以上，唯一 -->
+	  <div class="layui-form-item">
+    	<label class="layui-form-label">收货地址</label>
+    	<div class="layui-input-inline">
+      		<input type="text" name="a_addres" autocomplete="off" placeholder="请写详细，具体到门牌号" class="layui-input" value="">
+    	</div>
+  	</div>
+
+    <div class="layui-form-item">
+      <label class="layui-form-label">联系人</label>
+      <div class="layui-input-inline">
+          <input type="text" name="a_name" autocomplete="off" placeholder="请填写收货人姓名" class="layui-input" value="">
+      </div>
+    </div>
+
+    <div class="layui-form-item">
+      <label class="layui-form-label"></label>
+      <div class="layui-input-block">
+          <input type="radio" name="a_sex" value="1" title="先生" checked="">
+          <input type="radio" name="a_sex" value="2" title="女士">
+      </div>
+    </div>
+
+    <div class="layui-form-item">
+      <label class="layui-form-label">手机号</label>
+      <div class="layui-input-inline">
+          <input type="tel" name="a_tel" autocomplete="off" placeholder="请填写收货手机号" class="layui-input" value="">
+      </div>
+    </div>
+
+    <div class="layui-form-item">
+      <label class="layui-form-label">标签</label>
+      <div class="layui-input-block">
+          <input type="radio" name="a_label" value="1" title="家" checked="">
+          <input type="radio" name="a_label" value="2" title="公司">
+          <input type="radio" name="a_label" value="3" title="学校">
+      </div>
+    </div>
+ 
+  	<div class="layui-form-item">
+    	<div class="layui-input-block">
+      		<input type="button" class="layui-btn" lay-submit lay-filter="*" value="发布">
+      		<button type="reset" class="layui-btn layui-btn-primary">重置</button>
+    	</div>
+  	</div>
+</form>
+
+<script>
+  $(function(){
+    layui.use(['form','layer'], function(){
+      var form=layui.form
+      ,layer=layui.layer;
+
+      //提交
+      form.on('submit(*)', function(data){
+        $.post(
+          "{:url('Addres/doadd')}",
+          data.field,
+          function(res){
+            if(res.code==1){
+                layer.open({
+                    content: '添加成功'
+                    ,btn: ['再次添加', '跳转至列表']
+                    ,yes: function(index, layero){
+                        location.href="{:url('Addres/add')}";
+                    }
+                    ,btn2: function(index, layero){
+                        location.href="{:url('Addres/lists')}";
+                    }
+                });
+            }else{
+                layer.msg(res.font,{icon:res.code});
+            }
+          },
+          'json'
+        )
+        //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+        return false;
+      });
+
+    });
+  });
+</script>

@@ -1,0 +1,46 @@
+{__NOLAYOUT__}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+		<script src="__STATIC__/layui/layui.js"></script>
+		<script src="__STATIC__/index/login/jquery-3.2.1.min.js"></script>
+    </head>
+    <body>
+    	<table>
+    		<tr>
+    			<td>邮箱：</td>
+    			<td><input type="email" id="u_email"></td>
+    		</tr>
+    		<tr>
+    			<td colspan="2"><input type="submit" id="pwd" value="找回密码"></td>
+    		</tr>
+    	</table>
+    </body>
+</html>
+<script>
+	$(function(){
+	    layui.use(['layer'],function(){
+	        var layer=layui.layer;
+
+	        $('#pwd').click(function(){
+	        	var u_email=$('#u_email').val();
+	        	// console.log(u_email);
+	        	if(u_email==''){
+					layer.msg('邮箱必填',{icon:2});
+					return false;
+                }
+                //把账号 密码通过ajax传给控制器
+				$.post(
+				    "{:url('Login/forgetPwd')}",
+					{u_email:u_email},
+					function(res){
+				        layer.msg(res.font,{icon:res.code});
+					},
+					'json'
+				);
+	        })
+
+	    })
+	})
+</script>

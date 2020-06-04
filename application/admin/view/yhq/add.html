@@ -1,0 +1,66 @@
+    
+    <p style="color:red">{if condition="isset($error)"}{$error}{/if}</p>
+  <form class="layui-form" action="{:url('Yhq/doadd')}" method="post">
+	
+	  <div class="layui-form-item">
+    	<label class="layui-form-label">名称</label>
+    	<div class="layui-input-inline">
+      		<input type="text" name="q_name" lay-verify="required" autocomplete="off" placeholder="请输名称" class="layui-input" value="">
+    	</div>
+  	</div>
+
+  	<div class="layui-form-item">
+      <label class="layui-form-label">数量</label>
+      <div class="layui-input-inline">
+          <input type="text" name="q_number" lay-verify="required" autocomplete="off" placeholder="请输数量" class="layui-input" value="">
+      </div>
+    </div>
+
+    <div class="layui-form-item">
+      <label class="layui-form-label">金额</label>
+      <div class="layui-input-inline">
+          <input type="text" name="q_money" lay-verify="required" autocomplete="off" placeholder="请输入金额" class="layui-input" value="">
+      </div>
+    </div>
+
+    <div class="layui-form-item">
+      <label class="layui-form-label">开始时间</label>
+      <div class="layui-input-inline">
+          <input type="text" name="add_time" lay-verify="required" autocomplete="off" placeholder="请输开始时间" class="layui-input" value="">
+      </div>
+    </div>
+
+    <div class="layui-form-item">
+      <label class="layui-form-label">结束时间</label>
+      <div class="layui-input-inline">
+          <input type="text" name="del_time" lay-verify="required" autocomplete="off" placeholder="请输结束时间" class="layui-input" value="">
+      </div>
+    </div>
+
+  	<div class="layui-form-item">
+    	<div class="layui-input-block">
+      		<input type="button" lay-filter="*" class="layui-btn" lay-submit="" value="立即提交">
+      		<button type="reset" class="layui-btn layui-btn-primary">重置</button>
+    	</div>
+  	</div>
+</form>
+
+<script>
+  layui.use(['form'], function(){
+    var form=layui.form;
+  
+    //提交
+    form.on('submit(*)', function(data){
+      $.post(
+        "{:url('Yhq/doadd')}",
+        data.field,
+        function(res){
+          layer.msg(res.font,{icon:res.code});
+        },
+        'json'
+      )
+    });
+  
+
+});
+</script>

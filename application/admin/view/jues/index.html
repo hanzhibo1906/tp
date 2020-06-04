@@ -1,0 +1,40 @@
+
+<link rel="stylesheet" href="/static/page.css">
+  <div class="">
+    <table border="1" class="layui-table">
+    	<tr>
+			 <th colspan="7"><a href="{:url('Jues/add')}"><button class="layui-btn">添加</button></a></th>
+    	</tr>
+      <tr align="center">
+        <td>全<input type="checkbox" class="selectAll" name="ids[]">反<input type="checkbox"  class="selectnotAll" name="ids[]">ID</td>
+        <td>角色名</td>
+        <td>角色描述</td>
+      </tr>  
+      {volist name='vv' id='vo'}
+        <tr align="center">
+          <td><input type="checkbox" value="{$vo['id']}" name="ids[]">{$vo['id']}</td>
+          <td>{$vo['username']}</td>
+          <td>{$vo['neirong']}</td>
+          <td> 
+              <a href="{:url('update',['id'=>$vo.id])}"><button class="layui-btn">编辑</button></a> 
+              <a href="{:url('del',['id'=>$vo.id])}"><button class="layui-btn layui-btn-danger">删除</button></a>
+          </td>
+        </tr>
+    	{/volist}
+    </table>
+    {$vv|raw}
+  </div>
+  <script>
+    //全选
+    $('.selectAll').click(function(){
+      $("td input[type='checkbox']").prop({
+        checked:$(this).prop('checked')
+      });
+    });
+    //反选
+    $('.selectnotAll').click(function(){
+      $("td input[type='checkbox']").prop("checked",function(i,val){
+          return !val;
+      });
+    });
+  </script>

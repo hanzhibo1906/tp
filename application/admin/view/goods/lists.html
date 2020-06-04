@@ -1,0 +1,152 @@
+<style type="text/css">
+  .layui-table-cell {height:auto;line-height:25px;}
+</style>
+<table>
+	<tr>
+		<th colspan="7"><a href="{:url('Goods/add')}"><button class="layui-btn">添加</button></a></th>
+    </tr>
+</table>
+<table class="layui-hide" id="test" lay-filter="test"></table>
+<!-- 注意：如果你直接复制所有代码到本地，上述js路径需要改成你本地的 -->
+<script type="text/html" id="barDemo">
+  <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+  <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+<!-- 是否新品 -->
+<script type="text/html" id="is_new">
+  <input type="checkbox" name="is_new" goods_id="{{d.goods_id}}" value="{{d.is_new}}" lay-skin="switch" lay-text="是|否" lay-filter="showDemo" {{ d.is_new == 1 ? 'checked' : '' }}>
+</script>
+<!-- 是否精品 -->
+<script type="text/html" id="is_best">
+  <input type="checkbox" name="is_best" goods_id="{{d.goods_id}}" value="{{d.is_best}}" lay-skin="switch" lay-text="是|否" lay-filter="showDemo" {{ d.is_best == 1 ? 'checked' : '' }}>
+</script>
+<!-- 是否热销 -->
+<script type="text/html" id="is_hot">
+  <input type="checkbox" name="is_hot" goods_id="{{d.goods_id}}" value="{{d.is_hot}}" lay-skin="switch" lay-text="是|否" lay-filter="showDemo" {{ d.is_hot == 1 ? 'checked' : '' }}>
+</script>
+<!-- 是否上架 -->
+<script type="text/html" id="is_on_sale">
+  <input type="checkbox" name="is_on_sale" goods_id="{{d.goods_id}}" value="{{d.is_on_sale}}" lay-skin="switch" lay-text="是|否" lay-filter="showDemo" {{ d.is_on_sale == 1 ? 'checked' : '' }}>
+</script>
+<!-- -------------多选--------------------- -->
+<div class="layui-btn-group demoTable">
+  <button class="layui-btn" data-type="getCheckData">删除选中</button>
+</div>
+<script>
+layui.use(['table','form'], function(){
+  var table = layui.table
+  ,form = layui.form;
+
+  table.render({
+    elem: '#test'
+    ,url:"{:url('Goods/lists')}"
+    ,cellMinWidth: 80 
+    ,page:true
+    //条数可自定义
+    ,limit:"<?php echo config('pageSize')?>"
+    ,cols: [[
+      {type:'checkbox'}
+      ,{field:'goods_id', title: 'ID'}
+      ,{field:'goods_name', title: '名称'}
+      ,{field:'goods_sn', title: '货号'}
+      ,{field:'shop_price', title: '本店售价',}
+      ,{field:'brand_desc', title: '品牌描述'}
+      ,{field:'goods_number', title: '库存'}
+      ,{field:'is_new', title: '新品', templet: '#is_new', unresize: true}
+      ,{field:'is_best', title: '精品', templet: '#is_best', unresize: true}
+      ,{field:'is_hot', title: '热销', templet: '#is_hot', unresize: true}
+      ,{field:'is_on_sale', title: '上架', templet: '#is_on_sale', unresize: true}
+      ,{fixed: 'right', title:'操作', toolbar: '#barDemo'}
+    ]]
+  });
+  
+ //监听行删除事件
+  table.on('tool(test)', function(obj){
+    var data = obj.data;
+    //console.log(obj)
+    if(obj.event === 'del'){
+      layer.confirm('真的删除行么', function(index){
+        $.ajax({
+          url: "{:url('Goods/delete')}",
+          data: {brand_id:data.brand_id},
+          dataType: "json",
+        }).done(function( msg ) {
+          if(msg.code==0){
+            layer.msg(msg.msg);
+            obj.del();
+            layer.close(index);
+          }else{
+            layer.msg(msg.msg);
+          }
+        }); 
+      });
+    } else if(obj.event === 'edit'){
+      var brand_id=data.brand_id;
+      location.href="{:url('Goods/edit')}?id="+brand_id;
+    }
+  });
+
+  //监听表格复选框选择
+  var $ = layui.$, active = {
+    getCheckData: function(){ //获取选中数据
+      var checkStatus = table.checkStatus('test');
+      data = checkStatus.data;
+      $.ajax({
+        url: "{:url('ajaxdel')}",
+        data:{ allid:data}
+      }).done(function(msg) {
+        if (msg.code!=0) {
+          alert('删除成功');
+          location.href="{:url('lists')}";
+        }else{
+          layer.msg('msg.msg');
+        }
+      });
+    }  
+  };
+  //批删
+  $('.demoTable .layui-btn').on('click', function(){
+    var type = $(this).data('type');
+    active[type] ? active[type].call(this) : '';
+  });
+  
+  //监听状态操作 
+  form.on('switch(showDemo)', function(obj){
+    var goods_id=obj.othis.prev().attr('goods_id');
+    if(goods_id){
+      $.ajax({
+        url:"{:url('Goods/ajaxupd')}",
+        data:{goods_id:goods_id,value:this.value,key:this.name},
+        cache:false
+      }).done(function(html){
+        $('#results').append(html);
+      });
+    }
+  });
+
+  //即点即改
+  $(document).on('click','.laytable-cell-1-0-2',function(){
+    var id=$(this).parent().prev().text();
+    var text=$(this).text();
+    // alert(id+text);
+    $(this).parent().html('<input type=text class=ajaxupdd value="'+text+'">');
+  });
+  $(document).on('blur','.ajaxupdd',function(){
+      var obj=$(this);
+      var name=$(this).val();
+      var id=$(this).parent().prev().text();
+      if (name && id) {
+        $.ajax({
+          method: "POST",
+          url: "{:url('ajaxupdd')}",
+          data: { name:name, id:id }
+        }).done(function( msg ) {
+          if ( msg ) {
+            obj.parent().html('<div class="layui-table-cell laytable-cell-1-0-2">'+name+'</div>');
+          }
+        });
+      }
+  });
+  
+});
+</script>

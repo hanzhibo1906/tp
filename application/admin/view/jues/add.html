@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>角色管理</title> 
+    <script src="/static/js/jquery-3.3.1.min.js"></script>  
+</head>
+<body>	
+	<span class="layui-breadcrumb">
+	  <a href="{:url('Jues/index')}"><button style="float:right" class="layui-btn">返回</button></a>
+	</span>
+	<p style="color:red">{if condition="isset($error)"}{$error}{/if}</p>
+  <form class="layui-form" action="{:url('Jues/doadd')}" method="post">
+	  <div class="layui-form-item">
+		<label class="layui-form-label">角色名</label>
+		<div class="layui-input-inline">
+		  <input type="text" name="username" autocomplete="off" placeholder="请输入角色名" class="layui-input">
+		</div>
+	  </div>
+
+	  <div class="layui-form-item">
+		  <label class="layui-form-label">角色描述</label>
+          <textarea name="neirong"></textarea>
+	  </div>
+
+	  <div class="layui-form-item">
+		<div class="layui-input-block">
+		  <input type="button" class="layui-btn submitbtn" lay-submit="" lay-filter="demo1" value="立即提交">
+		  <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+		</div>
+	  </div>
+  </form>
+	<script>
+        $('.submitbtn').click(function(){
+            var username_flag=true;
+            var username=$('input[name="username"]').val();
+            if(username==''){
+                $('input[name="username"]').next().remove();
+                $('input[name="username"]').after('<span><b style="color:red">请输入角色名</b></span>');
+                username_flag=false;
+            }
+            var length=username.length;
+            if(length>30){
+                $('input[name="username"]').next().remove();
+                $('input[name="username"]').after('<span><b style="color:red">角色名不得超过30个字符</b></span>');
+                username_flag=false;
+            }
+            var reg=/^[\w\u4e00-\u9fa5-]{1,30}$/;
+            if(!reg.test(username)){
+                $('input[name="username"]').next().remove();
+                $('input[name="username"]').after('<span><b style="color:red">角色名称需是字母数字下划线</b></span>');
+                username_flag=false;
+            }
+            if(username){
+                $.ajax({
+                    async:false,
+                    url:"{:url('Jues/checkOnlyName')}",
+                    type:"post",
+                    data:{username:username},
+                    success:function(data){
+                        if(data!=0){
+                            $('input[name="username"]').next().remove();
+                            $('input[name="username"]').after('<span><b style="color:red">角色名称已存在</b></span>');
+                            username_flag=false;
+                        }
+                    }
+                });
+            }
+            if(username_flag){
+                $('.layui-form').submit();
+            }
+        });
+
+       $('input[name="username"]').blur(function(){
+            var username=$(this).val();
+            if(username==''){
+                $(this).next().remove();
+                $(this).after('<span><b style="color:red">请输入角色名</b></span>');
+                return;
+            }
+            var length=username.length;
+            if(length>30){
+                $(this).next().remove();
+                $(this).after('<span><b style="color:red">角色名不得超过30个字符</b></span>');
+                return;
+            }
+            var reg=/^[\w\u4e00-\u9fa5-]{1,30}$/;
+            if(!reg.test(username)){
+                $(this).next().remove();
+                $(this).after('<span><b style="color:red">角色名称需是字母数字下划线</b></span>');
+                return;
+            }
+            $.post("{:url('Jues/checkOnlyName')}",{username:username},function(data){
+                if(data!=0){
+                    $('input[name="username"]').next().remove();
+                    $('input[name="username"]').after('<span><b style="color:red">角色名称已存在</b></span>');
+                    return;
+                }
+            });
+            $(this).next().remove();
+       });
+    </script>
+</body>
+</html>

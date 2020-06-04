@@ -1,0 +1,33 @@
+{__NOLAYOUT__}
+    <table border="1" width="50%" height="300" class="layui-table">
+    	<tr>
+			 <th colspan="7"><a href="{:url('User/add')}"><button class="layui-btn">添加</button></a></th>
+    	</tr>
+      <tr align="center">
+        <td>ID</td>
+        <td>姓名</td>
+        <td>邮箱</td>
+        <td>添加时间</td>
+        <td>IP</td>
+        <td>最后时间</td>
+        <td>操作</td>
+      </tr>  
+      {volist name='vv' id='vo'}
+        <tr align="center">
+          <td>{$vo['admin_id']}</td>
+          <td id="{$vo['admin_id']}">
+            <span class="name">{$vo['admin_name']}</span>
+          </td>
+          <td>{$vo['email']}</td>
+          <td>{$vo.addtime|date='Y-m-d H:i'}</td>
+          <td>{$vo['ip']}</td>
+          <td>{$vo.lasttime|date='Y-m-d H:i'}</td>
+          <td> 
+              <a href="{:url('update',['admin_id'=>$vo.admin_id])}"><button class="layui-btn">编辑</button></a>
+              <a href="javascript:if(confirm('您确定要删除这条记录吗')) location='{:url('del',['admin_id'=>$vo.admin_id])}'"><button class="layui-btn layui-btn-danger">删除</button></a>
+          </td>
+        </tr>
+    	{/volist}
+    </table>
+    {$vv|raw}
+  

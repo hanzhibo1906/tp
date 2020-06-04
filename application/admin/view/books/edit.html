@@ -1,0 +1,106 @@
+    <span class="layui-breadcrumb">
+      <a href="{:url('Books/lists')}"><button style="float:right" class="layui-btn">返回</button></a>
+    </span>
+    <p style="color:red">{if condition="isset($error)"}{$error}{/if}</p>
+  <form class="layui-form" action="" method="post">
+	
+	  <div class="layui-form-item">
+    	<label class="layui-form-label">图书名称</label>
+    	<div class="layui-input-inline">
+      		<input type="text" name="b_title" autocomplete="off" placeholder="请输入图书名称" class="layui-input" value="{$data.b_title??''}">
+    	</div>
+  	</div>
+
+    <div class="layui-form-item">
+      <label class="layui-form-label">作者</label>
+      <div class="layui-input-inline">
+          <input type="text" name="b_name" autocomplete="off" placeholder="请输入作者" class="layui-input" value="{$data.b_name??''}">
+      </div>
+    </div>
+  
+  	<div class="layui-form-item">
+      	<label class="layui-form-label">封面</label>
+      	<div class="layui-upload">
+            <input type="hidden" name="b_img" value="{$data.b_img??''}" id="b_img">
+    			<button type="button" class="layui-btn" id="test1">上传图片</button>
+    			<div class="layui-upload-list">
+      			<img class="layui-upload-img" id="demo1" src="/uploads/{$data.b_img??''}">
+      			<p id="demoText"></p>
+    			</div>
+  		</div>  
+  	</div>
+
+    <div class="layui-form-item layui-form-text">
+      <label class="layui-form-label">图书内容</label>
+      <div class="layui-input-block">
+        <textarea name="b_content" placeholder="请输入内容" class="layui-textarea">{$data.b_content??''}</textarea>
+      </div>
+    </div>
+    <input type="hidden" name="b_id" value="{$data.b_id}">
+  	<div class="layui-form-item">
+    	<div class="layui-input-block">
+      		<input type="button" class="layui-btn" lay-submit lay-filter="*" value="修改">
+      		<button type="reset" class="layui-btn layui-btn-primary">重置</button>
+    	</div>
+  	</div>
+</form>
+
+<script>
+  $(function(){
+    layui.use(['upload','form','layer'], function(){
+      var upload = layui.upload
+      ,form=layui.form
+      ,layer=layui.layer;
+      
+      //普通图片上传
+      var uploadInst = upload.render({
+        elem: '#test1'
+        ,url: "{:url('Books/upload')}"
+        ,before: function(obj){
+          //预读本地文件示例，不支持ie8
+          obj.preview(function(index, file, result){
+            $('#demo1').attr('src', result); //图片链接（base64）
+          });
+        }
+        ,done: function(res){
+          //如果上传失败
+          if(res.code > 0){
+            return layer.msg('上传失败');
+          }
+          //上传成功
+          $('#b_img').val(res.msg);
+          layer.msg('上传成功');
+        }
+        ,error: function(){
+          //演示失败状态，并实现重传
+          var demoText = $('#demoText');
+          demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
+          demoText.find('.demo-reload').on('click', function(){
+            uploadInst.upload();
+          });
+        }
+      });
+
+      
+      //提交
+      form.on('submit(*)', function(data){
+        $.post(
+          "{:url('Books/doedit')}",
+          data.field,
+          function(res){
+            if(res.code==1){
+                layer.msg(res.font,{icon:res.code});
+                location.href="{:url('Books/lists')}";
+            }else{
+                layer.msg(res.font,{icon:res.code});
+            }
+          },
+          'json'
+        )
+        //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+        return false;
+      });
+
+    });
+  });
+</script>

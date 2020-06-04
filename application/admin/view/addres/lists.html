@@ -1,0 +1,35 @@
+<style type="text/css">
+  .layui-table-cell {height:auto;line-height:25px;}
+</style>
+<table>
+	<tr>
+		<th colspan="7"><a href="{:url('Addres/add')}"><button class="layui-btn">添加</button></a></th>
+    </tr>
+</table>
+
+<table border="1" width="600">
+  <tr align="center">
+    <td>id</td>
+    <td>收货地址</td>
+    <td>联系人</td>
+    <td>性别</td>
+    <td>手机号</td>
+  </tr>
+  {volist name='AddresInfo' id="v"}
+
+  <tr align="center">
+    <td>{$v.a_id}</td>
+    <td>{$v.a_addres}</td>
+    <td>{$v.a_name}</td>
+    <td>{$v.a_sex==1?'先生':'女士'}</td>
+    <td>{$v.a_tel}</td>
+  </tr>
+  {/volist}
+</table>
+
+<script>
+layui.use(['form'], function(){
+  var form = layui.form;
+  
+});
+</script>

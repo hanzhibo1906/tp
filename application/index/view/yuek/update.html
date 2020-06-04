@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>修改内容</title>  
+</head>
+<body>
+<strong>修改内容</strong>
+    <form method="post" action="{:url('doupdate')}">
+        <p>名称：<input type="text" name="username" value="{$v['username']}"></p>
+        <p>分类：<input type="text" name="cate" value="{$v['cate']}"></p>
+        <p>添加人：<input type="text" name="man" value="{$v['man']}"></p>
+        <p>
+          性别：
+          <input type="radio" class="input w50" value="1" {$v['sex']=='1'?'checked':''} name="sex">男
+          <input type="radio" class="input w50" value="2" {$v['sex']=='2'?'checked':''} name="sex">女
+        </p>
+        <input type="hidden" name="id" value="{$v['id']}">
+        <input type="submit" value="提交">
+    </form>
+</body>
+</html>

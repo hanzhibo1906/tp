@@ -1,0 +1,143 @@
+<style type="text/css">
+  .layui-table-cell {height:auto;line-height:25px;}
+</style>
+<table>
+	<tr>
+		<th colspan="7"><a href="{:url('Brand/add')}"><button class="layui-btn">添加</button></a></th>
+    </tr>
+</table>
+<table class="layui-hide" id="test" lay-filter="test"></table>
+<!-- 注意：如果你直接复制所有代码到本地，上述js路径需要改成你本地的 -->
+<script type="text/html" id="barDemo">
+  <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+  <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+<script type="text/html" id="brand_name">
+  <a href="{{d.brand_url}}" class="layui-table-link" target="_blank">{{ d.brand_name }}</a>
+</script>
+<script type="text/html" id="brand_logo">
+  <img src="/uploads/{{d.brand_logo}}">
+</script>
+<script type="text/html" id="switchTpl">
+  <!-- 这里的 checked 的状态只是演示 -->
+  <input type="checkbox" name="is_show" brand_id="{{d.brand_id}}" value="{{d.is_show}}" lay-skin="switch" lay-text="是|否" lay-filter="showDemo" {{ d.is_show == 1 ? 'checked' : '' }}>
+</script>
+<!-- -------------多选--------------------- -->
+<div class="layui-btn-group demoTable">
+  <button class="layui-btn" data-type="getCheckData">删除选中</button>
+</div>
+<script>
+layui.use(['table','form'], function(){
+  var table = layui.table
+  ,form = layui.form;
+
+  table.render({
+    elem: '#test'
+    ,url:"{:url('Brand/lists')}"
+    ,cellMinWidth: 80 
+    ,page:true
+    //条数可自定义
+    ,limit:"<?php echo config('pageSize')?>"
+    ,cols: [[
+      {type:'checkbox'}
+      ,{field:'brand_id', title: 'ID'}
+      ,{field:'brand_name', title: '品牌名称',templet: '#brand_name'}
+      ,{field:'brand_url', title: '品牌网址',}
+      ,{field:'brand_logo', title: '品牌LOGO',templet: '#brand_logo'}
+      ,{field:'brand_desc', title: '品牌描述'}
+      ,{field:'is_show', title: '是否显示', templet: '#switchTpl', unresize: true}
+      ,{fixed: 'right', title:'操作', toolbar: '#barDemo'}
+    ]]
+  });
+  
+ //监听行删除事件
+  table.on('tool(test)', function(obj){
+    var data = obj.data;
+    //console.log(obj)
+    if(obj.event === 'del'){
+      layer.confirm('真的删除行么', function(index){
+        $.ajax({
+          url: "{:url('Brand/delete')}",
+          data: {brand_id:data.brand_id},
+          dataType: "json",
+        }).done(function( msg ) {
+          if(msg.code==0){
+            layer.msg(msg.msg);
+            obj.del();
+            layer.close(index);
+          }else{
+            layer.msg(msg.msg);
+          }
+        }); 
+      });
+    } else if(obj.event === 'edit'){
+      var brand_id=data.brand_id;
+      location.href="{:url('Brand/edit')}?id="+brand_id;
+    }
+  });
+  
+  //监听状态操作 
+  form.on('switch(showDemo)', function(obj){
+    var brand_id=obj.othis.prev().attr('brand_id');
+    if(brand_id){
+      $.ajax({
+        url:"{:url('Brand/ajaxupd')}",
+        data:{brand_id:brand_id,value:this.value,key:this.name},
+        cache:false
+      }).done(function(html){
+        $('#results').append(html);
+      });
+    }
+  });
+
+  //监听表格复选框选择
+  var $ = layui.$, active = {
+    getCheckData: function(){ //获取选中数据
+      var checkStatus = table.checkStatus('test');
+      data = checkStatus.data;
+      $.ajax({
+        url: "{:url('ajaxdel')}",
+        data:{ allid:data}
+      }).done(function(msg) {
+        if (msg.code!=0) {
+          alert('删除成功');
+          location.href="{:url('lists')}";
+        }else{
+          layer.msg('msg.msg');
+        }
+      });
+    }  
+  };
+  //批删
+  $('.demoTable .layui-btn').on('click', function(){
+    var type = $(this).data('type');
+    active[type] ? active[type].call(this) : '';
+  });
+
+  //即点即改
+  $(document).on('click','.laytable-cell-1-0-3',function(){
+    var id=$(this).parent().prev().text();
+    var text=$(this).text();
+    // alert(id+text);
+    $(this).parent().html('<input type=text class=ajaxupdd value="'+text+'">');
+  });
+  $(document).on('blur','.ajaxupdd',function(){
+      var obj=$(this);
+      var name=$(this).val();
+      //prev()   上一级找ID
+      var id=$(this).parent().prev().prev().text();
+      if (name && id) {
+        $.ajax({
+          method: "POST",
+          url: "{:url('ajaxupdd')}",
+          data: { name:name, id:id }
+        }).done(function( msg ) {
+          if ( msg ) {
+            obj.parent().html('<div class="layui-table-cell laytable-cell-1-0-3">'+name+'</div>');
+          }
+        });
+      }
+  });
+
+});
+</script>

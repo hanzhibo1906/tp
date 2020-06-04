@@ -1,0 +1,161 @@
+<script type="text/javascript" src="__STATIC__/index/js/n_nav.js"></script> 
+{include file="public/nav" /}
+<!--End Menu End--> 
+<div class="i_bg">  
+    <div class="content mar_20">
+        <img src="__STATIC__/index/images/img2.jpg" />        
+    </div>
+    
+    <!--Begin 第二步：确认订单信息 Begin -->
+    <div class="content mar_20">
+        <div class="two_bg">
+            <div class="two_t">
+                <span class="fr"><a href="#">修改</a></span>商品列表
+            </div>
+            <table border="0" class="car_tab" style="width:1110px;" cellspacing="0" cellpadding="0">
+              <tr>
+                <td class="car_th" width="550">商品名称</td>
+                <td class="car_th" width="140">价格</td>
+                <td class="car_th" width="150">购买数量</td>
+                <td class="car_th" width="130">小计</td>
+              </tr>
+                {volist name='cartInfo' id='v'}
+                  <tr class="goods_id" goods_id="{$v.goods_id}">
+                    <td>
+                        <div class="c_s_img"><img src="__UPLOADS__/{$v.goods_img}" width="73" height="73" /></div>
+                        {$v.goods_name}
+                    </td>
+                    <td align="center">{$v.shop_price}</td>
+                    <td align="center">{$v.buy_number}</td>
+                    
+                    <td align="center" style="color:#ff4e00;">￥{$v.total}</td>
+                  </tr>
+                {/volist}
+              <tr>
+                <td colspan="5" align="right" style="font-family:'Microsoft YaHei';">
+                    商品总价：￥{$count} 
+                </td>
+              </tr>
+            </table>
+            
+            <div class="two_t">
+                <span class="fr"><a href="#">修改</a></span>收货人信息
+            </div>
+
+
+            <div style="border:1px solid gray;height:130px;overflow:auto">
+                {volist name='addressInfo' id='v'}
+                <br>
+                <table border="0" class="peo_tab" style="width:1110px;" cellspacing="0" cellpadding="0">
+                  <tr>
+                    <td rowspan="2">
+                        <input type="radio" name="is_default" value="{$v.address_id}" {if($v['is_default']==1)} checked {/if}>
+                    </td>
+                    <td rowspan="2">
+                    <td class="p_td" width="160">收货人姓名</td>
+                    <td width="395">{$v.address_name}</td>
+                    <td class="p_td" width="160">电话</td>
+                    <td width="395">{$v.address_tel}</td>
+                  </tr>
+                  <tr>
+                    <td class="p_td">详细信息</td>
+                    <td>{$v.province}{$v.city}{$v.area}{$v.address_detail}</td>
+                    <td class="p_td">邮政编码</td>
+                    <td>{$v.address_mail}</td>
+                  </tr>
+                </table>
+                <br>
+                {/volist}
+            </div>
+
+
+            <div class="two_t">
+                支付方式
+            </div>
+            <ul class="pay">
+                <li pay_type="1" class="checked">支付宝<div class="ch_img"></div></li>
+                <li pay_type="2">银行亏款/转账<div class="ch_img"></div></li>
+                <li pay_type="3">货到付款<div class="ch_img"></div></li>
+            </ul>
+            
+            <div class="two_t">
+                其他信息
+            </div>
+            <table border="0" class="car_tab" style="width:1110px;" cellspacing="0" cellpadding="0">
+              <tr valign="top">
+                <td align="right" style="padding-right:0;"><b style="font-size:14px;">订单附言：</b></td>
+                <td style="padding-left:0;">
+                    <textarea class="add_txt" style="width:860px; height:50px;"></textarea>
+                </td>
+              </tr>
+            </table>
+            
+            <table border="0" style="width:900px; margin-top:20px;" cellspacing="0" cellpadding="0">
+              <tr height="70">
+                <td align="right">
+                    <b style="font-size:14px;">应付款金额：<span style="font-size:22px; color:#ff4e00;">￥{$count}</span></b>
+                </td>
+              </tr>
+              <tr height="70">
+                <td align="right">
+                    <a href="javascript:;" id="submitOrder">
+                        <img src="__STATIC__/index/images/btn_sure.gif" />
+                    </a>
+                </td>
+              </tr>
+            </table>
+
+        </div>
+    </div>
+    <!--End 第二步：确认订单信息 End-->
+    
+<script>
+    $(function(){
+        layui.use(['layer'],function(){
+            var layer=layui.layer;
+
+            //选择支付方式
+            $('.pay').find('li').click(function(){
+                var _this=$(this);
+                _this.addClass('checked').siblings('li').removeClass('checked');
+            })
+
+            //点击确认订单
+            $('#submitOrder').click(function(){
+                //获取商品id
+                var goods_id='';
+                $('.goods_id').each(function(index){
+                    //拼接
+                    goods_id+=$(this).attr('goods_id')+',';
+                })
+                // console.log(goods_id);
+                //去掉后方，
+                goods_id=goods_id.substr(0,goods_id.length-1);
+                // console.log(goods_id);
+                //获取收货地址id
+                var address_id=$(':radio:checked').val();
+                // console.log(address_id);
+                //获取支付方式
+                var pay_type=$("li[class='checked']").attr('pay_type');
+                // console.log(pay_type);
+                //获取订单留言
+                var order_talk=$('.add_txt').val();
+                // console.log(order_talk);
+                $.post(
+                    "{:url('order/submitOrder')}",
+                    {goods_id:goods_id,address_id:address_id,pay_type:pay_type,order_talk:order_talk},
+                    function(res){
+                        // console.log(res);
+                        layer.msg(res.font,{icon:res.code,time:2000},function(){
+                            if(res.code==1){
+                                location.href="{:url('Order/successOrder')}?order_id="+res.order_id
+                            }
+                        });
+                    },
+                    'json'
+                );
+            })
+
+        })
+    })
+</script>

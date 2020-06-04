@@ -1,0 +1,132 @@
+
+<link rel="stylesheet" href="/static/page.css">
+<div class="layui-form">
+  <form action="{:url('User/index')}" method="get">
+    <div class="layui-form-item">
+      <div class="layui-input-inline">
+        <select name="field">
+            <option value="">请选择</option>
+            <option value="admin_name" {if condition="isset($_GET['field']) && $_GET['field'] eq 'admin_name'"} selected="" {/if}>管理员姓名</option>
+            <option value="email" {if condition="isset($_GET['field']) && $_GET['field'] eq 'email'"} selected="" {/if}>邮箱</option>
+        </select>
+      </div>
+      <div class="layui-input-inline">
+        <input type="text" name="keys" value="{$_GET['keys']??''}" placeholder="请输入关键字" class="layui-input">
+      </div>
+      <input type="button" value="搜索" id="button" class="layui-btn layui-btn-primary">
+    </div>  
+  </form>
+</div>
+  <script>
+    $('#button').click(function(){
+      var keys=$('input[name="keys"]').val();
+        if (keys!='') {
+          $('form').submit();
+        }else{
+          location.href="{:url('index')}";
+        }
+    });
+  </script>
+  <div class="layui-form" id="content">
+    <table border="1" width="50%" height="300" class="layui-table">
+    	<tr>
+			 <th colspan="7"><a href="{:url('User/add')}"><button class="layui-btn">添加</button></a></th>
+    	</tr>
+      <tr>
+        <th><input type="checkbox"  name="adminId[]">ID</th>
+        <th>姓名</th>
+        <th>邮箱</th>
+        <th>添加时间</th>
+        <th>IP</th>
+        <th>最后时间</th>
+        <th>操作</th>
+      </tr>  
+      {volist name='vv' id='vo'}
+        <tr align="center">
+          <td><input type="checkbox" class="selectAll" name="adminId[]" value="{$vo['admin_id']}">{$vo['admin_id']}</td>
+          <td id="{$vo['admin_id']}">
+            <span class="name">{$vo['admin_name']}</span>
+          </td>
+          <td>{$vo['email']}</td>
+          <td>{$vo.addtime|date='Y-m-d H:i'}</td>
+          <td>{$vo['ip']}</td>
+          <td>{$vo.lasttime|date='Y-m-d H:i'}</td>
+          <td> 
+              <a href="{:url('update',['admin_id'=>$vo.admin_id])}"><button class="layui-btn">编辑</button></a>
+              <a href="javascript:if(confirm('您确定要删除这条记录吗')) location='{:url('del',['admin_id'=>$vo.admin_id])}'"><button class="layui-btn layui-btn-danger">删除</button></a>
+          </td>
+        </tr>
+    	{/volist}
+      <tr>
+        <td>
+          <input type="button" class="delbtn" value="删除">
+        </td>
+      </tr>
+    </table>
+    {$vv|raw}
+  </div>
+<script src="/static/layui/layui.js"></script>
+<script>
+  layui.use('form',function(){
+    var form=layui.form;
+  });
+
+/*批删
+  $(document).on('click','th .layui-form-checkbox',function(){
+    var className=$(this).attr('class');
+    $('td .layui-form-checkbox').each(function(index){
+      $(this).attr('class',className);
+    });
+  });
+  $('.delbtn').click(function(){
+    var ids=new Array();
+    $('td .layui-form-checkbox').each(function(index){
+      ids.push($(this).prev().val());
+    });
+    if(confirm('您确定要删除这条记录吗')){
+      $.post("{:url('User/dels')}", {ids:ids},
+          function(data){
+            if(data){
+              window.location.reload();
+            }else{
+              alert('发生未知错误');
+            }
+      });
+
+    }
+  });
+*/
+//即点即改
+  $(document).on('click','.name',function(){
+    var name=$(this).text();
+    $(this).parent().html('<input class=ajaxupd type=text value="'+name+'">');
+  });
+  $(document).on('blur','.ajaxupd',function(){
+    var admin_name=$(this).val();
+    var admin_id=$(this).parent().attr('id');
+    var obj=$(this);
+    if(admin_name&&admin_id){
+      $.ajax({
+        url:"{:url('User/ajaxupd')}",
+        data:{admin_name:admin_name,admin_id:admin_id}
+      }).done(function(msg){
+        if(msg){
+          obj.parent().html('<span class="name">'+admin_name+'</span>');
+        }
+      });
+    }
+  });
+
+//无刷新分页
+$(document).on('click','.pagination a',function(){
+  var url=$(this).attr('href');
+  if(url){
+    $.ajax({
+      url:url,
+    }).done(function(html){
+      $('#content').html(html);
+    });
+  }
+  return false;
+});
+</script>
